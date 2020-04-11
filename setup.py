@@ -12,6 +12,7 @@ setup(name='secretservice',
           'wheel',
       ],
       install_requires=[
+          'boto3',
       ],
       scripts=[
           'secrets-cli',
