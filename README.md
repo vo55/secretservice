@@ -20,13 +20,13 @@ Within the project directory:
 
 #### Options
 ```bash
-secrets-cli -h
+./secrets-cli -h
 ```
 
 #### Execution
 
 ```bash
-secrets-cli -p my-aws-profile
+./secrets-cli -p my-aws-profile
 ```
 
 ## Output
