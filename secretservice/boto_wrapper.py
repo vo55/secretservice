@@ -11,10 +11,10 @@ def set_aws_profile(profile):
     """
     os.environ['AWS_PROFILE'] = profile
 
-
-def get_secrets_metadata():
-    secrets = get_encrypted_parameters() + get_secretsmanager_secrets() + get_iam_access_keys()
-    pass
+def get_secrets_metadata(logger):
+    secrets = get_encrypted_parameters(logger) + get_secretsmanager_secrets() + get_iam_access_keys()
+    logger.debug('Found {} secrets'.format(str(len(secrets))))
+    return secrets
 
 
 def get_encrypted_parameters(logger):
@@ -30,10 +30,20 @@ def get_encrypted_parameters(logger):
     for page in page_iterator:
         securestrings = securestrings + page['Parameters']
     logger.debug('Gathered securestrings: {}'.format(str(securestrings)))
+    return normalize_ssm_secrets(securestrings)
+
 
 def get_secretsmanager_secrets():
-    pass
+    # Todo
+    return []
 
 
 def get_iam_access_keys():
-    pass
+    # Todo
+    return []
+
+def normalize_ssm_secrets(secrets):
+    normalized_secrets = []
+    for secret in secrets:
+        normalized_secrets.append({'ID': secret['Name'], 'LastRotated': secret['LastModifiedDate']})
+    return normalized_secrets
