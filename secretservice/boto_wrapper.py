@@ -12,7 +12,7 @@ def set_aws_profile(profile):
     os.environ['AWS_PROFILE'] = profile
 
 def get_secrets_metadata(logger):
-    secrets = get_encrypted_parameters(logger) + get_secretsmanager_secrets() + get_iam_access_keys()
+    secrets = get_encrypted_parameters(logger) + get_secretsmanager_secrets(logger) + get_iam_access_keys()
     logger.debug('Found {} secrets'.format(str(len(secrets))))
     return secrets
 
@@ -33,9 +33,17 @@ def get_encrypted_parameters(logger):
     return normalize_ssm_secrets(securestrings)
 
 
-def get_secretsmanager_secrets():
-    # Todo
-    return []
+def get_secretsmanager_secrets(logger):
+    logger.debug('Getting SecretsManager secrets Meta Information')
+    secrets = []
+    ssm = boto3.client("secretsmanager")
+
+    paginator = ssm.get_paginator('list_secrets')
+    page_iterator = paginator.paginate()
+    for page in page_iterator:
+        secrets = secrets + page['SecretList']
+    logger.debug('Gathered secretsmanager secrets: {}'.format(str(secrets)))
+    return normalize_secretsmanager_secrets(secrets)
 
 
 def get_iam_access_keys():
@@ -46,4 +54,10 @@ def normalize_ssm_secrets(secrets):
     normalized_secrets = []
     for secret in secrets:
         normalized_secrets.append({'ID': secret['Name'], 'LastRotated': secret['LastModifiedDate']})
+    return normalized_secrets
+
+def normalize_secretsmanager_secrets(secrets):
+    normalized_secrets = []
+    for secret in secrets:
+        normalized_secrets.append({'ID': secret['ARN'], 'LastRotated': secret['LastChangedDate']})
     return normalized_secrets
