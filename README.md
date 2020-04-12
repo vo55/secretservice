@@ -31,3 +31,10 @@ secrets-cli -p my-aws-profile
 
 ## Output
 
+````bash
+2020-04-12 13:38:17 INFO     MAIN: Secret is old and should be rotated. Age: 95 --- <Resource-ID>
+2020-04-12 13:38:17 INFO     MAIN: Secret is old and should be rotated. Age: 95 --- <Resource-ID>
+2020-04-12 13:38:17 INFO     MAIN: Secret is old and should be rotated. Age: 248 --- <Resource-ID>
+2020-04-12 13:38:17 INFO     MAIN: Secret is old and should be rotated. Age: 248 --- <Resource-ID>
+2020-04-12 13:38:17 INFO     MAIN: Secret is old and should be rotated. Age: 248 --- <Resource-ID>
+
