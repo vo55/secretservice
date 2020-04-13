@@ -71,6 +71,7 @@ def get_users(logger):
 
 
 def normalize_ssm_secrets(secrets):
+    # LastUsed not set bc not available in ssm
     normalized_secrets = []
     for secret in secrets:
         normalized_secrets.append({'ID': secret['Name'], 'LastRotated': secret['LastModifiedDate'], 'Type': 'SecureString'})
@@ -79,7 +80,8 @@ def normalize_ssm_secrets(secrets):
 def normalize_secretsmanager_secrets(secrets):
     normalized_secrets = []
     for secret in secrets:
-        normalized_secrets.append({'ID': secret['ARN'], 'LastRotated': secret['LastChangedDate'], 'Type': 'Secretsmanager Secret'})
+        normalized_secrets.append({'ID': secret['ARN'], 'LastRotated': secret['LastChangedDate'],
+                                   'LastUsed': secret['LastAccessedDate'], 'Type': 'Secretsmanager Secret'})
     return normalized_secrets
 
 def normalize_access_keys(secrets, client):
