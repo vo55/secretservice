@@ -9,5 +9,5 @@ class SecretService:
 
     def benchmark(self):
         secrets = get_secrets_metadata(self.logger)
-        check_old_secrets(logger=self.logger, secrets=secrets, output=self.output)
+        check_all_rules(logger=self.logger, secrets=secrets, output=self.output)
         self.output.list_results()
