@@ -29,6 +29,17 @@ Within the project directory:
 ./secrets-cli -p my-aws-profile
 ```
 
+## Rule Overview
+#### Old Secrets
+If a secret is older than 90 days it should've been rotated already. Often there is fluctuation in teams and the secrets who are meant to be accessed only by team members
+are not only known by the team members anymore. Also it prevents being impacted by leaked old secrets.
+
+#### Unused Secrets
+Secrets unused for more than 30 days are possibly not used anymore and should be deleted if that's the case.
+
+#### Weak Secrets
+Checks some standard policies against the secret to determine how weak a secret is.
+
 ## Output
 
 ````bash
