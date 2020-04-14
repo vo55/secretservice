@@ -38,7 +38,7 @@ are not only known by the team members anymore. Also it prevents being impacted 
 Secrets unused for more than 30 days are possibly not used anymore and should be deleted if that's the case.
 
 #### Weak Secrets
-Checks some standard policies against the secret to determine how weak a secret is.
+To be implemented: Checks some standard policies against the secret to determine how weak a secret is.
 
 ## Output
 
