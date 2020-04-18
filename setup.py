@@ -13,6 +13,7 @@ setup(name='secretservice',
       ],
       install_requires=[
           'boto3',
+          'pytz'
       ],
       scripts=[
           'secrets-cli',

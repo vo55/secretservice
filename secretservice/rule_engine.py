@@ -20,6 +20,7 @@ def check_weak_secrets(logger, secrets, output):
 
 def check_unused_secrets(logger, secrets, output):
     max_unused = utc.localize(datetime.now() - timedelta(days=30))
+    logger.debug('Executing Rule unused secrets')
     for secret in secrets:
         if 'LastUsed' in secret.keys() and secret['LastUsed'] < max_unused:
             output.put_offender(resource_id=secret['ID'],
