@@ -13,6 +13,7 @@ def set_aws_profile(profile):
 def get_secrets_metadata(logger):
     secrets = get_iam_access_keys(logger)
     regions = get_regions(logger)
+    logger.info('Iterating through regions - this may take a while')
     for region in regions:
         try:
             logger.debug('Gathering information for {}'.format(region))
