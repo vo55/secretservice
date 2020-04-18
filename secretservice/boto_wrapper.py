@@ -11,15 +11,29 @@ def set_aws_profile(profile):
     os.environ['AWS_PROFILE'] = profile
 
 def get_secrets_metadata(logger):
-    secrets = get_encrypted_parameters(logger) + get_secretsmanager_secrets(logger) + get_iam_access_keys(logger)
+    secrets = get_iam_access_keys(logger)
+    regions = get_regions(logger)
+    logger.info('Iterating through regions - this may take a while')
+    for region in regions:
+        try:
+            logger.debug('Gathering information for {}'.format(region))
+            secrets += get_encrypted_parameters(region) + get_secretsmanager_secrets(region)
+        except:  # TODO Check if region is disabled
+            pass
     logger.debug('Found {} secrets'.format(str(len(secrets))))
     return secrets
 
 
-def get_encrypted_parameters(logger):
-    logger.debug('Getting ssm SecureString Meta Information')
+def get_regions(logger):
+    client = boto3.client('ec2')
+    regions = [region['RegionName'] for region in client.describe_regions()['Regions']]
+    logger.debug('Available Regions: {}'.format(str(regions)))
+    return regions
+
+
+def get_encrypted_parameters(region):
     securestrings = []
-    ssm = boto3.client("ssm")
+    ssm = boto3.client("ssm", region_name=region)
 
     paginator = ssm.get_paginator('describe_parameters')
     operation_parameters = {'Filters': [
@@ -28,20 +42,17 @@ def get_encrypted_parameters(logger):
     page_iterator = paginator.paginate(**operation_parameters)
     for page in page_iterator:
         securestrings = securestrings + page['Parameters']
-    logger.debug('Gathered securestrings: {}'.format(str(securestrings)))
     return normalize_ssm_secrets(securestrings)
 
 
-def get_secretsmanager_secrets(logger):
-    logger.debug('Getting SecretsManager secrets Meta Information')
+def get_secretsmanager_secrets(region):
     secrets = []
-    ssm = boto3.client("secretsmanager")
+    ssm = boto3.client("secretsmanager", region_name=region)
 
     paginator = ssm.get_paginator('list_secrets')
     page_iterator = paginator.paginate()
     for page in page_iterator:
         secrets = secrets + page['SecretList']
-    logger.debug('Gathered secretsmanager secrets: {}'.format(str(secrets)))
     return normalize_secretsmanager_secrets(secrets)
 
 
