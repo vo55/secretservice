@@ -11,15 +11,28 @@ def set_aws_profile(profile):
     os.environ['AWS_PROFILE'] = profile
 
 def get_secrets_metadata(logger):
-    secrets = get_encrypted_parameters(logger) + get_secretsmanager_secrets(logger) + get_iam_access_keys(logger)
+    secrets = get_iam_access_keys(logger)
+    regions = get_regions(logger)
+    for region in regions:
+        try:
+            secrets += get_encrypted_parameters(logger, region) + get_secretsmanager_secrets(logger, region)
+        except:  # TODO Check if region is disabled
+            pass
     logger.debug('Found {} secrets'.format(str(len(secrets))))
     return secrets
 
 
-def get_encrypted_parameters(logger):
+def get_regions(logger):
+    client = boto3.client('ec2')
+    regions = [region['RegionName'] for region in client.describe_regions()['Regions']]
+    logger.debug('Available Regions: {}'.format(str(regions)))
+    return regions
+
+
+def get_encrypted_parameters(logger, region):
     logger.debug('Getting ssm SecureString Meta Information')
     securestrings = []
-    ssm = boto3.client("ssm")
+    ssm = boto3.client("ssm", region_name=region)
 
     paginator = ssm.get_paginator('describe_parameters')
     operation_parameters = {'Filters': [
@@ -32,10 +45,10 @@ def get_encrypted_parameters(logger):
     return normalize_ssm_secrets(securestrings)
 
 
-def get_secretsmanager_secrets(logger):
+def get_secretsmanager_secrets(logger, region):
     logger.debug('Getting SecretsManager secrets Meta Information')
     secrets = []
-    ssm = boto3.client("secretsmanager")
+    ssm = boto3.client("secretsmanager", region_name=region)
 
     paginator = ssm.get_paginator('list_secrets')
     page_iterator = paginator.paginate()
