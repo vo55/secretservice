@@ -15,7 +15,8 @@ def get_secrets_metadata(logger):
     regions = get_regions(logger)
     for region in regions:
         try:
-            secrets += get_encrypted_parameters(logger, region) + get_secretsmanager_secrets(logger, region)
+            logger.debug('Gathering information for {}'.format(region))
+            secrets += get_encrypted_parameters(region) + get_secretsmanager_secrets(region)
         except:  # TODO Check if region is disabled
             pass
     logger.debug('Found {} secrets'.format(str(len(secrets))))
@@ -29,8 +30,7 @@ def get_regions(logger):
     return regions
 
 
-def get_encrypted_parameters(logger, region):
-    logger.debug('Getting ssm SecureString Meta Information')
+def get_encrypted_parameters(region):
     securestrings = []
     ssm = boto3.client("ssm", region_name=region)
 
@@ -41,12 +41,10 @@ def get_encrypted_parameters(logger, region):
     page_iterator = paginator.paginate(**operation_parameters)
     for page in page_iterator:
         securestrings = securestrings + page['Parameters']
-    logger.debug('Gathered securestrings: {}'.format(str(securestrings)))
     return normalize_ssm_secrets(securestrings)
 
 
-def get_secretsmanager_secrets(logger, region):
-    logger.debug('Getting SecretsManager secrets Meta Information')
+def get_secretsmanager_secrets(region):
     secrets = []
     ssm = boto3.client("secretsmanager", region_name=region)
 
@@ -54,7 +52,6 @@ def get_secretsmanager_secrets(logger, region):
     page_iterator = paginator.paginate()
     for page in page_iterator:
         secrets = secrets + page['SecretList']
-    logger.debug('Gathered secretsmanager secrets: {}'.format(str(secrets)))
     return normalize_secretsmanager_secrets(secrets)
 
 
